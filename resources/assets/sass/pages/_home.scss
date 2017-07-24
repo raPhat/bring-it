@@ -1,0 +1,26 @@
+.dashboard {
+
+    &--menu {
+        &--item {
+            padding: 15px;
+            width: 100%;
+            text-align: center;
+            border-radius: 5px;
+
+            &:hover {
+                background-color: #EEE;
+            }
+
+            .icon {
+                margin-bottom: 10px;
+                .fa {
+                    font-size: 60px;
+                }
+            }
+            .text {
+                font-size: 12px;
+                opacity: 0.75;
+            }
+        } /* --item */
+    }
+}

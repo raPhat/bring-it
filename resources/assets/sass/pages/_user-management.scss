@@ -1,0 +1,31 @@
+.user-management {
+    &--container {
+
+    }
+
+    &--table {
+        margin: 0 -16px;
+
+        th {
+            padding: 8px;
+        }
+
+        a.btn__action {
+            margin-right: 5px;
+        }
+
+        th, td {
+            &.column-id {
+                text-align: center;
+            }
+        }
+    }
+}
+
+.filter-container {
+    padding: 10px;
+}
+
+.icon-status {
+    font-size: 24px;
+}
