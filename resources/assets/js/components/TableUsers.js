@@ -15,6 +15,7 @@ class TableUsers extends Component {
 
         this.handleChange = this.handleChange.bind(this);
         this.onUpdate = this.onUpdate.bind(this);
+        this.onRemove = this.onRemove.bind(this);
     }
 
     componentDidMount() {
@@ -52,7 +53,6 @@ class TableUsers extends Component {
                 return response.json();
             })
             .then(user => {
-                console.log(user);
                 const users = this.state.users;
                 const index = _.findIndex(users, {id: user.id});
                 users.splice(index, 1, user);
@@ -60,6 +60,31 @@ class TableUsers extends Component {
                     users
                 });
             });
+        e.preventDefault();
+        return false
+    }
+
+    onRemove(e) {
+        if (confirm('Are you sure ?')) {
+            const id = e.target.dataset.id;
+            fetch(`${endpoint.users}/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => {
+                    return response.json();
+                })
+                .then(user => {
+                    let users = this.state.users;
+                    users = users.filter(u => u.id !== user.id);
+                    this.setState({
+                        users
+                    });
+                });
+        }
         e.preventDefault();
         return false
     }
@@ -104,7 +129,9 @@ class TableUsers extends Component {
                                 <li><a href={ `/user-management/${user.id}` } role='button'>View</a></li>
                                 <li><a href={ `/user-management/${user.id}/edit` } role='button'>Edit</a></li>
                                 <li role='separator' className='divider'></li>
-                                <li><a href={ `/user-management/${user.id}/edit` } role='button'>Remove</a></li>
+                                <li><a href='#' onClick={this.onRemove}
+                                    data-id={user.id}
+                                    role='button'>Remove</a></li>
                                 {
                                     (user.is_banned) ?
                                     (<li>

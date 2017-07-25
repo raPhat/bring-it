@@ -47,8 +47,13 @@ class UserController extends Controller
             'user' => [
                 'username' => '',
                 'email' => '',
+                'password' => '',
                 'first_name' => '',
                 'last_name' => '',
+                'birth_date' => '',
+                'phone' => '',
+                'critizen_id' => '',
+                'role' => 'MEMBER',
             ],
             'mode' => 'CREATE'
         ]);
@@ -64,7 +69,19 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $params = $request->only([
+                'username',
+                'email',
+                'password',
+                'first_name',
+                'last_name',
+                'birth_date',
+                'phone',
+                'critizen_id',
+                'role'
+            ]);
+        $new_user = $this->userService->create($params);
+        return response()->json($new_user);
     }
 
     /**
@@ -120,6 +137,7 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        //
+        $user_removed = $this->userService->delete($user);
+        return response()->json($user_removed);
     }
 }

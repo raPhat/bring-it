@@ -21,6 +21,10 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
         'password' => $password ?: $password = bcrypt('secret'),
         'first_name' => $faker->firstName,
         'last_name' => $faker->lastName,
+        'birth_date' => $faker->date,
+        'phone' => $faker->tollFreePhoneNumber,
+        'critizen_id' => $faker->phoneNumber,
+        'role' => $faker->randomElement($array = array ('MEMBER','BUYER','SHIPPER','SELLER','ADMIN')),
         'remember_token' => str_random(10),
     ];
 });
