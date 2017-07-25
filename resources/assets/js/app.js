@@ -7,8 +7,6 @@
 
 require('./bootstrap');
 
-import UserService from './services/UserService';
-
 import Index from './components/Index';
 import DashboardMenu from './components/DashboardMenu';
 import TableUsers from './components/TableUsers';
