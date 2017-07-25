@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { endpoint } from '../endpoint';
 import * as _ from 'lodash';
+import Select from 'react-select';
+
+import 'react-select/dist/react-select.css';
 
 class TableUsers extends Component {
 
@@ -10,10 +13,12 @@ class TableUsers extends Component {
 
         this.state = {
             users: [],
-            keyword: ''
+            keyword: '',
+            select: ''
         }
 
         this.handleChange = this.handleChange.bind(this);
+        this.handleSelectChange = this.handleSelectChange.bind(this);
         this.onUpdate = this.onUpdate.bind(this);
         this.onRemove = this.onRemove.bind(this);
     }
@@ -31,6 +36,12 @@ class TableUsers extends Component {
     handleChange(e) {
         this.setState({
             keyword: e.target.value
+        });
+    }
+
+    handleSelectChange(value) {
+        this.setState({
+            select: value
         });
     }
 
@@ -91,11 +102,34 @@ class TableUsers extends Component {
 
     renderTBody() {
         const filteredUsers = _.filter(this.state.users, (user) => {
-            const checks = [];
+            const keyword = this.state.keyword;
+            const select = this.state.select;
+            let checks = [];
             const result = _.forOwn(user, (value, key) => {
                 const val = value + '';
-                checks.push(val.indexOf(this.state.keyword) > -1);
-            })
+                checks.push(val.toLowerCase().indexOf(keyword.toLowerCase()) > -1);
+            });
+            if (select.length) {
+                if (keyword == '') {
+                    checks = [];
+                }
+                if (_.find(select, ['value', user.role])) {
+                    checks.push(true);
+                }
+                if (user.is_approve && _.find(select, ['value', 'APPROVE'])) {
+                    checks.push(true);
+                }
+                if (!user.is_approve && _.find(select, ['value', 'NOAPPROVE'])) {
+                    checks.push(true);
+                }
+                if (user.is_banned && _.find(select, ['value', 'BANNED'])) {
+                    checks.push(true);
+                }
+                if (!user.is_banned && _.find(select, ['value', 'NOBAN'])) {
+                    checks.push(true);
+                }
+            }
+            console.log('checks', checks);
             return _.filter(checks, (check) => check).length;
         });
 
@@ -105,7 +139,7 @@ class TableUsers extends Component {
                     <td className='column-id'>{ user.id }</td>
                     <td>{ user.first_name } { user.last_name }</td>
                     <td>{ user.email }</td>
-                    <td>{ user.created_at }</td>
+                    <td>{ user.role }</td>
                     <td className='text-center'>
                         {
                             (user.is_approve) ?
@@ -167,6 +201,12 @@ class TableUsers extends Component {
                                             role='button'>Approve</a>
                                     </li>)
                                 }
+                                <li role='separator' className='divider'></li>
+                                {
+                                    (user.role === 'SELLER') ? (
+                                        <li><a href={ `/shop-management/create/${user.id}` } role='button'>Add Shop</a></li>
+                                    ) : ''
+                                }
                             </ul>
                         </div>
                     </td>
@@ -176,9 +216,38 @@ class TableUsers extends Component {
     }
 
     renderFilter() {
+        const options = [
+            { value: 'BUYER', label: 'Role - Buyer' },
+            { value: 'SHIPPER', label: 'Role - Shipper' },
+            { value: 'SELLER', label: 'Role - Seller' },
+            { value: 'ADMIN', label: 'Role - Admin' },
+            { value: 'APRROVE', label: 'Status - Approve' },
+            { value: 'NOAPPROVE', label: 'Status - No approve' },
+            { value: 'BANNED', label: 'Status - Banned' },
+            { value: 'NOBAN', label: 'Status - No ban' },
+        ];
         return (
             <div className='filter-container'>
-                <input type='text' className='form-control' placeholder='search...' value={this.state.keyword} onChange={this.handleChange}/>
+                <input type='text'
+                className='form-control'
+                placeholder='search... (name, email, role)'
+                value={this.state.keyword}
+                onChange={this.handleChange}/>
+                <hr/>
+                <div className="row">
+                    <div className="col-md-12">
+                        <div className="form-group">
+                            <label htmlFor="input-filter">Filters:</label>
+                            <Select
+                                name="form-field-name"
+                                value={this.state.select}
+                                options={options}
+                                multi={true}
+                                onChange={this.handleSelectChange}
+                                />
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -193,7 +262,7 @@ class TableUsers extends Component {
                             <th className='column-id' width='10%'>#</th>
                             <th width='20%'>Fullname</th>
                             <th width='20%'>Email</th>
-                            <th width='20%'>Created at</th>
+                            <th width='20%'>Role</th>
                             <th width='10%' className='text-center'>Approve</th>
                             <th width='10%' className='text-center'>Banned</th>
                             <th width='10%'> </th>

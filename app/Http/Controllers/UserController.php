@@ -53,7 +53,7 @@ class UserController extends Controller
                 'birth_date' => '',
                 'phone' => '',
                 'critizen_id' => '',
-                'role' => 'MEMBER',
+                'role' => 'BUYER',
             ],
             'mode' => 'CREATE'
         ]);

@@ -16,9 +16,9 @@ class DashboardMenu extends Component {
                     link: '/user-management'
                 },
                 {
-                    icon: 'fa-question-circle',
-                    text: 'SOME MENU',
-                    link: '#'
+                    icon: 'fa-bank',
+                    text: 'SHOP MANAGEMENT',
+                    link: '/shop-management'
                 }
             ]
         }

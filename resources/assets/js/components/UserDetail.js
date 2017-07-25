@@ -53,7 +53,7 @@ class UserDetail extends Component {
                     return response.json();
                 })
                 .then(user => {
-                    console.log(user);
+                    document.location = '/user-management';
                 });
             return;
         }
@@ -71,7 +71,7 @@ class UserDetail extends Component {
                 return response.json();
             })
             .then(user => {
-                console.log(user);
+                document.location = '/user-management';
             });
     }
 
@@ -166,7 +166,6 @@ class UserDetail extends Component {
                         defaultValue={this.state.user.role}
                         onChange={this.handleChange}
                         required>
-                        <option defaultValue='MEMBER'>MEMBER</option>
                         <option defaultValue='BUYER'>BUYER</option>
                         <option defaultValue='SHIPPER'>SHIPPER</option>
                         <option defaultValue='SELLER'>SELLER</option>

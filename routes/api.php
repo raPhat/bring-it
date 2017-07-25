@@ -21,3 +21,5 @@ Route::get('/users', 'UserController@index');
 Route::post('/users', 'UserController@store');
 Route::patch('/users/{user}', 'UserController@update');
 Route::delete('/users/{user}', 'UserController@destroy');
+
+Route::post('/images', 'ImageController@store');
