@@ -24,7 +24,6 @@ class CreateUsersTable extends Migration
             $table->string('phone')->nullable();
             $table->string('critizen_id')->nullable();
             $table->string('role')->default('MEMBER');
-            $table->boolean('is_approve')->default(false);
             $table->boolean('is_banned')->default(false);
             $table->rememberToken();
             $table->timestamps();

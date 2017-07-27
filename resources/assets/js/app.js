@@ -11,6 +11,7 @@ import Index from './components/Index';
 import DashboardMenu from './components/DashboardMenu';
 import TableUsers from './components/TableUsers';
 import UserDetail from './components/UserDetail';
+import TableShops from './components/TableShops';
 import ShopDetail from './components/ShopDetail';
 
 // window.Vue = require('vue');

@@ -24,4 +24,7 @@ Route::get('/user-management/create', 'UserController@create')->middleware('auth
 Route::get('/user-management/{user}', 'UserController@show')->middleware('auth');
 Route::get('/user-management/{user}/edit', 'UserController@edit')->middleware('auth');
 
+Route::get('/shop-management', 'ShopController@all')->middleware('auth');
 Route::get('/shop-management/create/{user}', 'ShopController@createWithUser')->middleware('auth');
+Route::get('/shop-management/{id}/edit/{user}', 'ShopController@edit')->middleware('auth');
+Route::get('/shop-management/{id}/view/{user}', 'ShopController@show')->middleware('auth');

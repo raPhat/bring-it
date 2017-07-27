@@ -3,10 +3,21 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+use App\Services\ImageService;
+use Illuminate\Support\Facades\Auth;
 
 class ImageController extends Controller
 {
+
+    protected $imageService;
+
+    function __construct(
+        ImageService $imageService
+    )
+    {
+        $this->imageService = $imageService;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -35,19 +46,14 @@ class ImageController extends Controller
      */
     public function store(Request $request)
     {
-        $current_time = Carbon::now()->toDayDateTimeString();
-        $path = $request->imageFiles->storeAs('images', $this->generateRandomString() . '-' . $current_time . '.jpg');
-        return response()->json($path);
-    }
+        $images = [];
+        $files = $request->file();
 
-    function generateRandomString($length = 10) {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $charactersLength = strlen($characters);
-        $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        foreach($files as $key => $file) {
+            $images[] = $this->imageService->create($file);
         }
-        return $randomString;
+
+        return response()->json($images);
     }
 
     /**

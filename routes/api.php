@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,13 +14,22 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::post('/login', 'LoginController@loginByAPI');
+Route::post('/register', 'RegisterController@registerByAPI');
+
+Route::middleware(['auth:api'])->group(function () {
+    // Users
+    Route::get('/users/me', 'UserController@me');
+    Route::get('/users', 'UserController@index');
+    Route::post('/users', 'UserController@store');
+    Route::patch('/users/{user}', 'UserController@update');
+    Route::delete('/users/{user}', 'UserController@destroy');
+
+    // Shops
+    Route::get('/shops', 'ShopController@index');
+    Route::post('/shops', 'ShopController@store');
+    Route::patch('/shops/{shop}', 'ShopController@update');
+    Route::delete('/shops/{shop}', 'ShopController@destroy');
+
 });
-
-Route::get('/users', 'UserController@index');
-Route::post('/users', 'UserController@store');
-Route::patch('/users/{user}', 'UserController@update');
-Route::delete('/users/{user}', 'UserController@destroy');
-
 Route::post('/images', 'ImageController@store');

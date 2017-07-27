@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import DatePicker from 'react-datepicker';
+import { NotificationContainer, NotificationManager } from 'react-notifications';
 import { endpoint } from '../endpoint';
 import moment from 'moment';
 
 import 'react-datepicker/dist/react-datepicker.css';
+import 'react-notifications/lib/notifications.css';
 
 class UserDetail extends Component {
 
@@ -12,8 +14,9 @@ class UserDetail extends Component {
         super(props);
 
         this.state = {
-            user: window.user,
-            mode: window.mode
+            user: props.user || window.user,
+            mode: props.mode || window.mode,
+            token: window.token
         }
 
         this.editMode = this.editMode.bind(this);
@@ -37,15 +40,16 @@ class UserDetail extends Component {
 
     save() {
         const user = this.state.user;
+        user['birth_date'] = user['birth_date'] ? user['birth_date'].format('YYYY-MM-DD') : '';
 
         // edit mode
         if (user.id) {
-            console.log('user', user);
             fetch(`${endpoint.users}/${user.id}`, {
                 method: 'PATCH',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.state.token}`,
                 },
                 body: JSON.stringify(user)
             })
@@ -53,7 +57,13 @@ class UserDetail extends Component {
                     return response.json();
                 })
                 .then(user => {
-                    document.location = '/user-management';
+                    // document.location = '/user-management';
+                    NotificationManager.success('User edited', 'SUCCESS');
+                    console.log('edit success');
+                })
+                .catch(error => {
+                    NotificationManager.error('', 'ERROR');
+                    console.log(error)
                 });
             return;
         }
@@ -64,6 +74,7 @@ class UserDetail extends Component {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.state.token}`,
             },
             body: JSON.stringify(user)
         })
@@ -71,7 +82,12 @@ class UserDetail extends Component {
                 return response.json();
             })
             .then(user => {
-                document.location = '/user-management';
+                // document.location = '/user-management';
+                NotificationManager.success('User saved', 'SUCCESS');
+            })
+            .catch(error => {
+                NotificationManager.error('', 'ERROR');
+                console.log(error)
             });
     }
 
@@ -165,6 +181,7 @@ class UserDetail extends Component {
                     <select name='role' className="form-control"
                         defaultValue={this.state.user.role}
                         onChange={this.handleChange}
+                        disabled={this.state.mode === 'VIEW'}
                         required>
                         <option defaultValue='BUYER'>BUYER</option>
                         <option defaultValue='SHIPPER'>SHIPPER</option>
@@ -173,11 +190,16 @@ class UserDetail extends Component {
                     </select>
                 </div>
                 <hr/>
-                <div className="form-group">
-                    <button type="button" className="btn btn-primary btn-lg btn-block" onClick={this.save}>
-                        Save
-                    </button>
-                </div>
+                {
+                    (this.state.mode !== 'VIEW') ?
+                    (
+                        <div className="form-group">
+                            <button type="button" className="btn btn-primary btn-lg btn-block" onClick={this.save}>
+                                Save
+                            </button>
+                        </div>
+                    ) : ''
+                }
             </form>
         );
     }
@@ -187,12 +209,13 @@ class UserDetail extends Component {
             <div>
                 {
                     (this.state.mode === 'VIEW') ?
-                    (<button className="btn btn-primary" onClick={this.editMode}>EDIT MODE</button>) :
+                    (<button className="btn btn-primary" onClick={this.editMode}>EDIT USER</button>) :
                     (this.state.mode === 'EDIT') ? (<button className="btn btn-default" onClick={this.viewMode}>VIEW MODE</button>) :
                     (<h3>Create new user</h3>)
                 }
                 <hr/>
                 { this.renderDetail() }
+                <NotificationContainer/>
             </div>
         );
     }

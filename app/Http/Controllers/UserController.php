@@ -7,6 +7,7 @@ use App\User;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Http\Requests\UserPatch;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -20,8 +21,19 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
+    public function me(Request $request) {
+        $user = Auth::user();
+        return response()->json(['success' => $user]);
+    }
+
     public function all()
     {
+        $token = Auth::user()->createToken('MyApp')->accessToken;
+
+        JavaScript::put([
+            'token' => $token
+        ]);
+
         return view('user.list');
     }
 
@@ -43,6 +55,8 @@ class UserController extends Controller
      */
     public function create()
     {
+        $token = Auth::user()->createToken('MyApp')->accessToken;
+
         JavaScript::put([
             'user' => [
                 'username' => '',
@@ -55,7 +69,8 @@ class UserController extends Controller
                 'critizen_id' => '',
                 'role' => 'BUYER',
             ],
-            'mode' => 'CREATE'
+            'mode' => 'CREATE',
+            'token' => $token
         ]);
 
         return view('user.view');
@@ -90,11 +105,14 @@ class UserController extends Controller
      * @param  \App\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function show(User $user)
+    public function show(User $user, Request $request)
     {
+        $token = Auth::user()->createToken('MyApp')->accessToken;
+
         JavaScript::put([
             'user' => $user,
-            'mode' => 'VIEW'
+            'mode' => 'VIEW',
+            'token' => $token
         ]);
 
         return view('user.view');

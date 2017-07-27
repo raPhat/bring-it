@@ -6,13 +6,13 @@ import Select from 'react-select';
 
 import 'react-select/dist/react-select.css';
 
-class TableUsers extends Component {
+class TableShops extends Component {
 
     constructor(props) {
         super(props);
 
         this.state = {
-            users: [],
+            shops: [],
             keyword: '',
             select: '',
             token: window.token
@@ -25,7 +25,7 @@ class TableUsers extends Component {
     }
 
     componentDidMount() {
-        fetch(`${endpoint.users}`, {
+        fetch(`${endpoint.shops}`, {
             headers : {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
@@ -35,8 +35,9 @@ class TableUsers extends Component {
             .then(response => {
                 return response.json();
             })
-            .then(users => {
-                this.setState({ users });
+            .then(shops => {
+                console.log(shops);
+                this.setState({ shops });
             });
     }
 
@@ -59,7 +60,7 @@ class TableUsers extends Component {
         const body = {};
         body[type] = (status === 'true') ? true : false;
 
-        fetch(`${endpoint.users}/${id}`, {
+        fetch(`${endpoint.shops}/${id}`, {
             method: 'PATCH',
             headers: {
                 'Accept': 'application/json',
@@ -71,12 +72,12 @@ class TableUsers extends Component {
             .then(response => {
                 return response.json();
             })
-            .then(user => {
-                const users = this.state.users;
-                const index = _.findIndex(users, {id: user.id});
-                users.splice(index, 1, user);
+            .then(shop => {
+                const shops = this.state.shops;
+                const index = _.findIndex(shops, {id: shop.id});
+                shops.splice(index, 1, shop);
                 this.setState({
-                    users
+                    shops
                 });
             });
         e.preventDefault();
@@ -86,7 +87,7 @@ class TableUsers extends Component {
     onRemove(e) {
         if (confirm('Are you sure ?')) {
             const id = e.target.dataset.id;
-            fetch(`${endpoint.users}/${id}`, {
+            fetch(`${endpoint.shops}/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Accept': 'application/json',
@@ -97,11 +98,11 @@ class TableUsers extends Component {
                 .then(response => {
                     return response.json();
                 })
-                .then(user => {
-                    let users = this.state.users;
-                    users = users.filter(u => u.id !== user.id);
+                .then(shop => {
+                    let shops = this.state.shops;
+                    shops = shops.filter(u => u.id !== shop.id);
                     this.setState({
-                        users
+                        shops
                     });
                 });
         }
@@ -110,11 +111,11 @@ class TableUsers extends Component {
     }
 
     renderTBody() {
-        const filteredUsers = _.filter(this.state.users, (user) => {
+        const filteredUsers = _.filter(this.state.shops, (shop) => {
             const keyword = this.state.keyword;
             const select = this.state.select;
             let checks = [];
-            const result = _.forOwn(user, (value, key) => {
+            const result = _.forOwn(shop, (value, key) => {
                 const val = value + '';
                 checks.push(val.toLowerCase().indexOf(keyword.toLowerCase()) > -1);
             });
@@ -122,36 +123,27 @@ class TableUsers extends Component {
                 if (keyword == '') {
                     checks = [];
                 }
-                if (_.find(select, ['value', user.role])) {
+                if (shop.is_approved && _.find(select, ['value', 'APRROVE'])) {
                     checks.push(true);
                 }
-                if (user.is_banned && _.find(select, ['value', 'BANNED'])) {
-                    checks.push(true);
-                }
-                if (!user.is_banned && _.find(select, ['value', 'NOBAN'])) {
+                if (!shop.is_approved && _.find(select, ['value', 'NOAPPROVE'])) {
                     checks.push(true);
                 }
             }
             return _.filter(checks, (check) => check).length;
         });
 
-        return filteredUsers.map((user, index) => {
+        return filteredUsers.map((shop, index) => {
             return (
                 <tr key={index}>
-                    <td className='column-id'>{ user.id }</td>
-                    <td>{ user.first_name } { user.last_name }</td>
-                    <td>{ user.email }</td>
-                    <td>{ user.role }</td>
+                    <td className='column-id'>{ shop.id }</td>
+                    <td>{ shop.shop_name }</td>
+                    <td>{ shop.lat }</td>
+                    <td>{ shop.lng }</td>
+                    <td>{ shop.user.first_name } { shop.user.last_name }</td>
                     <td className='text-center'>
                         {
-                            (user.is_approve) ?
-                            (<span className="glyphicon glyphicon-ok-sign text-success icon-status"></span>) :
-                            (<span className="glyphicon glyphicon-remove-sign text-danger icon-status"></span>)
-                        }
-                    </td>
-                    <td className='text-center'>
-                        {
-                            (user.is_banned) ?
+                            (shop.is_approved) ?
                             (<span className="glyphicon glyphicon-ok-sign text-success icon-status"></span>) :
                             (<span className="glyphicon glyphicon-remove-sign text-danger icon-status"></span>)
                         }
@@ -162,34 +154,29 @@ class TableUsers extends Component {
                                 <span className='glyphicon glyphicon-option-vertical'></span>
                             </button>
                             <ul className='dropdown-menu' aria-labelledby='dropdownAction'>
-                                <li><a href={ `/user-management/${user.id}` } role='button'>View</a></li>
-                                <li><a href={ `/user-management/${user.id}/edit` } role='button'>Edit</a></li>
+                                <li><a href={ `/shop-management/${shop.id}/view/${shop.user_id}` } role='button'>View</a></li>
+                                <li><a href={ `/shop-management/${shop.id}/edit/${shop.user_id}` } role='button'>Edit</a></li>
                                 <li role='separator' className='divider'></li>
                                 <li><a href='#' onClick={this.onRemove}
-                                    data-id={user.id}
+                                    data-id={shop.id}
                                     role='button'>Remove</a></li>
+                                <li role='separator' className='divider'></li>
                                 {
-                                    (user.is_banned) ?
+                                    (shop.is_approved) ?
                                     (<li>
                                         <a href='#' onClick={this.onUpdate}
-                                            data-id={user.id}
+                                            data-id={shop.id}
                                             data-status='false'
-                                            data-type='is_banned'
-                                            role='button'>Unbanned</a>
+                                            data-type='is_approved'
+                                            role='button'>Unapprove</a>
                                     </li>) :
                                     (<li>
                                         <a href='#' onClick={this.onUpdate}
-                                            data-id={user.id}
+                                            data-id={shop.id}
                                             data-status='true'
-                                            data-type='is_banned'
-                                            role='button'>Ban</a>
+                                            data-type='is_approved'
+                                            role='button'>Approve</a>
                                     </li>)
-                                }
-                                <li role='separator' className='divider'></li>
-                                {
-                                    (user.role === 'SELLER') ? (
-                                        <li><a href={ `/shop-management/create/${user.id}` } role='button'>Add Shop</a></li>
-                                    ) : ''
                                 }
                             </ul>
                         </div>
@@ -201,18 +188,14 @@ class TableUsers extends Component {
 
     renderFilter() {
         const options = [
-            { value: 'BUYER', label: 'Role - Buyer' },
-            { value: 'SHIPPER', label: 'Role - Shipper' },
-            { value: 'SELLER', label: 'Role - Seller' },
-            { value: 'ADMIN', label: 'Role - Admin' },
-            { value: 'BANNED', label: 'Status - Banned' },
-            { value: 'NOBAN', label: 'Status - No ban' },
+            { value: 'APRROVE', label: 'Status - Approve' },
+            { value: 'NOAPPROVE', label: 'Status - No approve' },
         ];
         return (
             <div className='filter-container'>
                 <input type='text'
                 className='form-control'
-                placeholder='search... (name, email, role)'
+                placeholder='search... (name, location)'
                 value={this.state.keyword}
                 onChange={this.handleChange}/>
                 <hr/>
@@ -242,11 +225,11 @@ class TableUsers extends Component {
                     <thead>
                         <tr>
                             <th className='column-id' width='10%'>#</th>
-                            <th width='20%'>Fullname</th>
-                            <th width='20%'>Email</th>
-                            <th width='20%'>Role</th>
+                            <th width='20%'>Shop's name</th>
+                            <th width='20%'>Latitude</th>
+                            <th width='20%'>Longitude</th>
+                            <th width='20%'>Seller</th>
                             <th width='10%' className='text-center'>Approve</th>
-                            <th width='10%' className='text-center'>Banned</th>
                             <th width='10%'> </th>
                         </tr>
                     </thead>
@@ -257,10 +240,10 @@ class TableUsers extends Component {
     }
 }
 
-export default TableUsers;
+export default TableShops;
 
 // We only want to try to render our component on pages that have a div with an ID
-// of 'table-users'; otherwise, we will see an error in our console
-if (document.getElementById('table-users')) {
-    ReactDOM.render(<TableUsers />, document.getElementById('table-users'));
+// of 'table-shops'; otherwise, we will see an error in our console
+if (document.getElementById('table-shops')) {
+    ReactDOM.render(<TableShops />, document.getElementById('table-shops'));
 }
